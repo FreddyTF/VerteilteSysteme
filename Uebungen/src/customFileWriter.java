@@ -1,15 +1,16 @@
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
-import java.util.Calendar;
 import java.util.Random;
 import java.time.Instant;
 
 public class customFileWriter implements Runnable{
     String fileNamePublic;
     String id;
+    String processID;
     public customFileWriter(String fileName){
         this.id = String.valueOf(Thread.currentThread().getId());
+        this.processID = String.valueOf(ProcessHandle.current().pid());
         this.fileNamePublic = fileName;
     }
 
@@ -17,10 +18,10 @@ public class customFileWriter implements Runnable{
         while(true)
         {
             // readAndPrintFile();
-            String text = "Process " + this.id + ":";
-            Integer rand = new Random().nextInt(50, 500);
+            String text = "tID " + this.id + " pID: " + this.processID + ":";
+            Integer rand = new Random().nextInt(250, 2000);
             try{
-                Thread.sleep(rand);
+                Thread.sleep(250);
             }
             catch (InterruptedException e){
                 System.out.println("Interrupted");
@@ -79,5 +80,9 @@ public class customFileWriter implements Runnable{
             System.out.println("An error occurred while reading the file.");
             e.printStackTrace();
         }
+    }
+
+    public void setTID(String tID){
+        this.id = tID;
     }
 }
