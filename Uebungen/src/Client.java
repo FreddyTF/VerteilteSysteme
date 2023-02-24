@@ -8,12 +8,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
 
-public class Client implements Runnable{
+public class Client{
     /**
     * this method initialises the client
     * @param dns distination like " localhost "; can also be
@@ -29,8 +26,7 @@ public class Client implements Runnable{
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
 
-    public void initialise(String dns, int port){
-        System.out.println("client will do connection");
+    public void initialize(String dns, int port){
         try{
             this.myClient = new Socket(dns, port);
             OutputStream outputStream = this.myClient.getOutputStream();
@@ -43,16 +39,14 @@ public class Client implements Runnable{
         }
     }
 
-    public void run(){
-        this.sendMessage("test hallo 123");
-    }
-
     public void sendMessage(String messageString){
         try{
-            System.out.println("Client will send message");
             this.dataOutputStream.writeUTF(messageString);
             this.dataOutputStream.flush();
-            System.out.println("Client sent message");
+
+            String resp = dataInputStream.readUTF();
+            System.out.println("Response: " + resp);
+
         }
         catch (IOException e){
             System.out.println("Client send not working");

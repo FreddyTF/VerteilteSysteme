@@ -2,7 +2,7 @@ import java.net.*;
 import java.io.*;
 
 
-public class Server implements Runnable{
+public class Server{
     
     // this max client definition is not available in "old "
     // implementations
@@ -21,14 +21,13 @@ public class Server implements Runnable{
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
 
-    public void initialise(String dns, int port){
+    public void initialize(String dns, int port){
         try{
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("server now accepting");
             myClient = serverSocket.accept();
         }
         catch (IOException e){
-            System.out.println("Server tut net"); 
+            System.out.println("Server tut net");
         }
     }
 
@@ -40,21 +39,21 @@ public class Server implements Runnable{
         }
     }
 
-    public void run(){
-        this.readMessage();
-    }
-
     public void readMessage(){
         try{
-            System.out.println("init server read");
             InputStream inputStream = this.myClient.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
-            System.out.println("middle server read");
             OutputStream outputStream = myClient.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
-            String toPrint = dataInputStream.readUTF();
-            System.out.println("server has read");
-            System.out.println("message: " + toPrint);
+
+            while (!myClient.isClosed()){
+                System.out.println("bevore sending response");
+                String msg = dataInputStream.readUTF();
+                System.out.println("sent response");
+                System.out.println("Incoming msg: " + msg);
+
+                dataOutputStream.writeUTF("200");
+            }
         }
         catch (IOException e){
             System.out.println("Server read not working");
