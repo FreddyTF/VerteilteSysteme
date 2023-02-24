@@ -6,9 +6,9 @@ import java.time.Instant;
 
 public class customFileWriter {
     String fileNamePublic;
-    Integer id;
+    String id;
     public customFileWriter(String fileName){
-        this.id = 1;
+        this.id = String.valueOf(ProcessHandle.current().pid());
         this.fileNamePublic = fileName;
     }
 
@@ -16,7 +16,13 @@ public class customFileWriter {
         while(true)
         {
             // readAndPrintFile();
-            String text = "Test text";
+            String text = "Process " + this.id + ":";
+
+            text = text.concat(" Test Text ");
+
+            Instant strDate = Instant.now();
+            text = text.concat(" " + strDate);
+            text = text.concat(System.lineSeparator());
             //readInput();
             fileAppender(text);
         }
