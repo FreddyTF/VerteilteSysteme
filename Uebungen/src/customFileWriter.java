@@ -2,13 +2,14 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 import java.util.Calendar;
+import java.util.Random;
 import java.time.Instant;
 
-public class customFileWriter {
+public class customFileWriter implements Runnable{
     String fileNamePublic;
     String id;
     public customFileWriter(String fileName){
-        this.id = String.valueOf(ProcessHandle.current().pid());
+        this.id = String.valueOf(Thread.currentThread().getId());
         this.fileNamePublic = fileName;
     }
 
@@ -17,14 +18,26 @@ public class customFileWriter {
         {
             // readAndPrintFile();
             String text = "Process " + this.id + ":";
+            Integer rand = new Random().nextInt(50, 500);
+            try{
+                Thread.sleep(rand);
+            }
+            catch (InterruptedException e){
+                System.out.println("Interrupted");
+            }
+            if(rand % 2 == 0){
+                //write input
+                text = text.concat(" Test Text ");
+                Instant strDate = Instant.now();
+                text = text.concat(" " + strDate);
+                text = text.concat(System.lineSeparator());
+                fileAppender(text);
+            }
+            else{
+                readAndPrintFile();
+            }
 
-            text = text.concat(" Test Text ");
-
-            Instant strDate = Instant.now();
-            text = text.concat(" " + strDate);
-            text = text.concat(System.lineSeparator());
-            //readInput();
-            fileAppender(text);
+            
         }
     }
 

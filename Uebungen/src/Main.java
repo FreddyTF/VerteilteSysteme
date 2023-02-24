@@ -21,9 +21,10 @@ public class Main {
 
         customFileWriter writer1 = new customFileWriter(fileName);
         customFileWriter writer2 = new customFileWriter(fileName);
-        writer1.run();
-        writer2.run();
-
+        Thread runner = new Thread(writer1);
+        Thread runner2 = new Thread(writer2);
+        runner.start();
+        runner2.start();
     }
 
 
