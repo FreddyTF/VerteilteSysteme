@@ -1,23 +1,14 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.Socket;
 
 
 public class Main {
     public static void main(String[] args) {
-        Server myServer = new Server();
-        Client myClient = new Client();
-        myServer.initialise("localhost", 200);
-        myClient.initialise("localhost", 200);
-        
-        Thread myServerThread = new Thread(myServer);
-        Thread myClientThread = new Thread(myClient);
-        myServerThread.start();
-        myClientThread.start();
+        taskTwo();
     }
 
-    public void taskTwo(){
+    public static void taskTwo(){
         // check if the file does not exist
 
         String fileName = "my-data.txt";

@@ -3,7 +3,11 @@
      * this could be a own thread
      */
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -22,10 +26,17 @@ public class Client implements Runnable{
     */
 
     public Socket myClient;
+    private DataOutputStream dataOutputStream;
+    private DataInputStream dataInputStream;
 
     public void initialise(String dns, int port){
+        System.out.println("client will do connection");
         try{
             this.myClient = new Socket(dns, port);
+            OutputStream outputStream = this.myClient.getOutputStream();
+            dataOutputStream = new DataOutputStream(outputStream);
+            InputStream inputStream = this.myClient.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
         }
         catch (IOException e){
             System.out.println("Client tut net");
@@ -38,7 +49,10 @@ public class Client implements Runnable{
 
     public void sendMessage(String messageString){
         try{
-            this.myClient.getOutputStream();
+            System.out.println("Client will send message");
+            this.dataOutputStream.writeUTF(messageString);
+            this.dataOutputStream.flush();
+            System.out.println("Client sent message");
         }
         catch (IOException e){
             System.out.println("Client send not working");
