@@ -47,9 +47,7 @@ public class Server{
             dataOutputStream = new DataOutputStream(outputStream);
 
             while (!myClient.isClosed()){
-                System.out.println("bevore sending response");
                 String msg = dataInputStream.readUTF();
-                System.out.println("sent response");
                 System.out.println("Incoming msg: " + msg);
 
                 dataOutputStream.writeUTF("200");
