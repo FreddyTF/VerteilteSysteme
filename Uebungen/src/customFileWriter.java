@@ -9,7 +9,7 @@ public class customFileWriter {
     Integer id;
     public customFileWriter(String fileName){
         this.id = 1;
-        this.fileNamePublic = file
+        this.fileNamePublic = fileName;
     }
 
     public void run(){
