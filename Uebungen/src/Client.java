@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -23,14 +24,14 @@ public class Client{
     */
 
     public Socket myClient;
-    private DataOutputStream dataOutputStream;
+    private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
 
     public void initialize(String dns, int port){
         try{
             this.myClient = new Socket(dns, port);
             OutputStream outputStream = this.myClient.getOutputStream();
-            dataOutputStream = new DataOutputStream(outputStream);
+            objectOutputStream = new ObjectOutputStream(outputStream);
             InputStream inputStream = this.myClient.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
         }
@@ -39,10 +40,10 @@ public class Client{
         }
     }
 
-    public void sendMessage(String messageString){
+    public void sendMessage(Message message){
         try{
-            this.dataOutputStream.writeUTF(messageString);
-            this.dataOutputStream.flush();
+            this.objectOutputStream.writeObject(message);
+            this.objectOutputStream.flush();
 
             String resp = dataInputStream.readUTF();
             System.out.println("Response: " + resp);

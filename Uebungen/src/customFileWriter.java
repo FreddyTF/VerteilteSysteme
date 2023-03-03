@@ -19,7 +19,7 @@ public class customFileWriter implements Runnable{
         {
             // readAndPrintFile();
             String text = "tID " + this.id + " pID: " + this.processID + ":";
-            Integer rand = new Random().nextInt(250, 2000);
+            Integer rand = new Random().nextInt(250);
             try{
                 Thread.sleep(250);
             }

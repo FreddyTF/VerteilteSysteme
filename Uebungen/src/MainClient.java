@@ -6,7 +6,8 @@ public class MainClient {
         myClient.initialize("localhost", 200);
         int i = 0;
         while(true){
-            myClient.sendMessage("Message Nr." + i + "; Time: " + Instant.now());
+            Message message = new Message("MyClient", "MyServer", "payload " + i, "Message");
+            myClient.sendMessage(message);
             i++;
         }
     }

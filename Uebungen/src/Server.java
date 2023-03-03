@@ -45,10 +45,12 @@ public class Server{
             dataInputStream = new DataInputStream(inputStream);
             OutputStream outputStream = myClient.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
+            ObjectMessageReader omr = new ObjectMessageReader();
+            omr.initInputStreams(myClient);
 
-            while (!myClient.isClosed()){
-                String msg = dataInputStream.readUTF();
-                System.out.println("Incoming msg: " + msg);
+            while (!myClient.isClosed()){    
+                Message message = omr.read(myClient);
+                System.out.println("Incoming msg: " + message.getPayload());
 
                 dataOutputStream.writeUTF("200");
             }
