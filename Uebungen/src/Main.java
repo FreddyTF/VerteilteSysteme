@@ -25,8 +25,8 @@ public class Main {
         customFileWriter writer2 = new customFileWriter(fileName);
         Thread runner = new Thread(writer1);
         Thread runner2 = new Thread(writer2);
-        writer1.setTID(String.valueOf(runner.getId()));
-        writer2.setTID(String.valueOf(runner2.getId()));
+        writer1.setTID(String.valueOf(runner.getNodeId()));
+        writer2.setTID(String.valueOf(runner2.getNodeId()));
 
         runner.start();
         runner2.start();

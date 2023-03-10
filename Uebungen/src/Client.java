@@ -23,16 +23,16 @@ public class Client{
      * @throws UnknownHostException
     */
 
-    public Socket myClient;
+    public Socket myNode;
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
 
     public void initialize(String dns, int port){
         try{
-            this.myClient = new Socket(dns, port);
-            OutputStream outputStream = this.myClient.getOutputStream();
+            this.myNode = new Socket(dns, port);
+            OutputStream outputStream = this.myNode.getOutputStream();
             objectOutputStream = new ObjectOutputStream(outputStream);
-            InputStream inputStream = this.myClient.getInputStream();
+            InputStream inputStream = this.myNode.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
         }
         catch (IOException e){

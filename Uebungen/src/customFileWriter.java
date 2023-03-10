@@ -9,7 +9,7 @@ public class customFileWriter implements Runnable{
     String id;
     String processID;
     public customFileWriter(String fileName){
-        this.id = String.valueOf(Thread.currentThread().getId());
+        this.id = String.valueOf(Thread.currentThread().getNodeId());
         this.processID = String.valueOf(ProcessHandle.current().pid());
         this.fileNamePublic = fileName;
     }

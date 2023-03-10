@@ -3,7 +3,7 @@ import java.util.LinkedList;
 import java.io.*;
 
 
-public class Node{
+public class Node extends Thread{
     
     // this max client definition is not available in "old "
     // implementations
@@ -17,7 +17,7 @@ public class Node{
     */
     private String ip = "";
     private int port = -1;
-    private int id = -1;
+    private int nodeId = -1;
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
 
@@ -32,8 +32,7 @@ public class Node{
         this.port = port;
     }
 
-    public void initialize(LinkedList<Node> listOfNodes){
-        this.listOfNodes = listOfNodes;
+    public void run(){
         if(this.role == Role.SLAVE){
             try{
                 Node master = this.getMaster();
@@ -68,22 +67,20 @@ public class Node{
     }
 
     public void readMessage(){
-        try{
-            InputStream inputStream = this.myMaster.getInputStream();
-            dataInputStream = new DataInputStream(inputStream);
-            OutputStream outputStream = myMaster.getOutputStream();
-            dataOutputStream = new DataOutputStream(outputStream);
+        if(this.role == Role.MASTER){
+            try{
+                while (!myMaster.isClosed()){
+                    String msg = dataInputStream.readUTF();
+                    System.out.println("Incoming msg: " + msg);
 
-            while (!myMaster.isClosed()){
-                String msg = dataInputStream.readUTF();
-                System.out.println("Incoming msg: " + msg);
-
-                dataOutputStream.writeUTF("200");
+                    dataOutputStream.writeUTF("200");
+                }
+            }
+            catch (IOException e){
+                System.out.println("Server read not working");
             }
         }
-        catch (IOException e){
-            System.out.println("Server read not working");
-        }
+        
     }
 
     private Node getMaster(){
@@ -92,17 +89,18 @@ public class Node{
                 return node;
             }
         }
+        System.out.println("Fehler hier, kein Master in sicht");
         return null;
     }
 
-    public LinkedList<Node> getListOfNodes(){return listOfNodes;}
+    public LinkedList<Node> getListOfNodes(){return this.listOfNodes;}
     public void setListOfNodes(LinkedList<Node> list){this.listOfNodes = list;}
-    public String getIp(){return ip;}
+    public String getIp(){return this.ip;}
     public void setIp(String ip) {this.ip=ip;}
-    public int getPort(){return port;}
+    public int getPort(){return this.port;}
     public void setPort(int port){this.port=port;}
-    public int getId(){return id;}
-    public void setId(int id ){this.id=id;}
-    public Role getRole(){return role;}
+    public int getNodeId(){return this.nodeId;}
+    public void setNodeId(int id ){this.nodeId=id;}
+    public Role getRole(){return this.role;}
     public void setRole(Role role){this.role = role;}
 }
