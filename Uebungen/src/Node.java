@@ -23,6 +23,7 @@ public class Node extends Thread{
 
     public ServerSocket myServer;
     public Socket myMaster;
+    public Socket myClient;
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
 
@@ -33,6 +34,7 @@ public class Node extends Thread{
     }
 
     public void run(){
+        //TODO: implement connection between node and client
         if(this.role == Role.SLAVE){
             try{
                 Node master = this.getMaster();
