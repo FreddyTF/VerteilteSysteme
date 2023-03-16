@@ -21,8 +21,9 @@ public class Node extends Thread{
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
 
-    public Socket myMaster;
-    public Socket myClient;
+    public Socket leader;
+    public Socket follower;
+    public Socket[] clients;
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
 
@@ -33,19 +34,19 @@ public class Node extends Thread{
     }
 
     public void run(){
-        //if slave -> init an go in while true for sending() and reading()
-        if(this.role == Role.SLAVE){
+        //if follower -> init an go in while true for sending() and reading()
+        if(this.role == Role.FOLLOWER){
             try{
-                Node master = this.getMaster();
-                this.myMaster = new Socket(master.getIp(), master.getPort());
-                OutputStream outputStream = this.myMaster.getOutputStream();
+                Node leader = this.getLeader();
+                this.leader = new Socket(leader.getIp(), leader.getPort());
+                OutputStream outputStream = this.leader.getOutputStream();
                 this.objectOutputStream = new ObjectOutputStream(outputStream);
-                InputStream inputStream = this.myMaster.getInputStream();
+                InputStream inputStream = this.leader.getInputStream();
                 this.dataInputStream = new DataInputStream(inputStream);
-                System.out.println("Connected successfully to Master: " + master.getIp());
+                System.out.println("Connected successfully to leader: " + leader.getIp());
             }
             catch (IOException e){
-                System.out.println("Slave: connecting to Master failed");
+                System.out.println("Follower: connecting to leader failed");
             }
 
             Message message = new Message("MyClient", "MyServer", "payload " + 1, "Message");
@@ -53,40 +54,40 @@ public class Node extends Thread{
                 this.sendMessage(message);
             }
         }
-        else if (this.role == Role.MASTER){
-            //if master -> init and go in while true for read_message() and send_message()
+        else if (this.role == Role.LEADER){
+            //if leader -> init and go in while true for read_message() and send_message()
             try{
                 ServerSocket serverSocket = new ServerSocket(this.port);
-                System.out.println("Master accepting incoming messages from now on");
-                this.myClient = serverSocket.accept();
+                System.out.println("leader accepting incoming messages from now on");
+                this.follower = serverSocket.accept();
             }
             catch (IOException e){
-                System.out.println("Master: Opening as a Master failed");
+                System.out.println("leader: Opening as a leader failed");
             }
             System.out.println("Reading messages from now on");
-            this.readMessages(this.myClient);
+            this.readMessages(this.follower);
         }
     }
 
     public void closeSockets(){
         try {
-            this.myMaster.close();
+            this.leader.close();
         } catch (Exception e) { 
             System.out.println("An error occured whilst closing the sockets.");
         }
     }
 
-    public void readMessages(Socket myClient){
+    public void readMessages(Socket connections){
         try{
-            InputStream inputStream = myClient.getInputStream();
+            InputStream inputStream = connections.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
-            OutputStream outputStream = myClient.getOutputStream();
+            OutputStream outputStream = connections.getOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
             ObjectMessageReader omr = new ObjectMessageReader();
-            omr.initInputStreams(myClient);
+            omr.initInputStreams(connections);
             
-            while (!myClient.isClosed()){
-                Message message = omr.read(myClient);
+            while (!connections.isClosed()){
+                Message message = omr.read(connections);
                 System.out.println("Incoming msg: " + message.getPayload());
 
                 dataOutputStream.writeUTF("200");
@@ -111,13 +112,13 @@ public class Node extends Thread{
         }
     }   
     
-    private Node getMaster(){
+    private Node getLeader(){
         for(Node node : this.listOfNodes){
-            if(node.getRole() == Role.MASTER){
+            if(node.getRole() == Role.LEADER){
                 return node;
             }
         }
-        System.out.println("Fehler hier, kein Master in sicht");
+        System.out.println("Fehler hier, kein leader in sicht");
         return null;
     }
 

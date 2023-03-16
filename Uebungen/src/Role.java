@@ -1,3 +1,3 @@
 public enum Role {
-    UNKNOWN, MASTER, SLAVE
+    UNKNOWN, LEADER, FOLLOWER
 }
