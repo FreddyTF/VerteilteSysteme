@@ -61,40 +61,24 @@ public class Node extends Thread{
             }
         }
         else if (this.role == Role.LEADER){
-            //if leader -> init and go in while true for read_message() and send_message()
+            //if leader -> init and go in while true for read_message() and send_message            
             try (ServerSocket serverSocket = new ServerSocket(this.port)) {
                 NodeSaver newConnection = new NodeSaver(serverSocket.accept());
                 this.initializeStreams(newConnection);
                 this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
+                //new thread that is accepting new connections
             }
             catch (IOException e){
                 System.out.println("Opening as a leader failed");
             }
-            
             while(true){
                 for (NodeSaver nodeSaver : this.connections) {
                     this.readMessages(nodeSaver);
                 }
-                try (ServerSocket serverSocket = new ServerSocket(this.port)) {
-                    NodeSaver newConnection = new NodeSaver(serverSocket.accept());
-                    this.initializeStreams(newConnection);
-                    this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
-                }
-                catch (IOException e){
-                    System.out.println("Opening as a leader failed");
-                }
             }
         }
     }
-
-    public void closeSockets(){
-        try {
-            this.leader.close();
-        } catch (Exception e) { 
-            System.out.println("An error occurred whilst closing the sockets.");
-        }
-    }
-
+    
     public void readMessages(NodeSaver nodeSaver){
         try{            
             Message message = nodeSaver.getOmr().read(nodeSaver.getSocket());
