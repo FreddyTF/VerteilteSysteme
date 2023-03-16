@@ -1,5 +1,6 @@
 import java.net.*;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 import java.io.*;
 
 
@@ -21,9 +22,9 @@ public class Node extends Thread{
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
 
-    public Socket leader;
-    public Socket follower;
-    public Socket[] clients;
+    public Socket leader;   //the one leader, if self is a leader -> empty
+    public LinkedList<NodeSaver> connections = new LinkedList<NodeSaver>(); //all connected nodes
+    public LinkedList<NodeSaver> allNodes = new LinkedList<NodeSaver>(); //all nodes, incl. own -> same list for every node
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
 
@@ -43,29 +44,46 @@ public class Node extends Thread{
                 this.objectOutputStream = new ObjectOutputStream(outputStream);
                 InputStream inputStream = this.leader.getInputStream();
                 this.dataInputStream = new DataInputStream(inputStream);
-                System.out.println("Connected successfully to leader: " + leader.getIp());
+                System.out.println(this.ip + ": connected successfully to leader: " + leader.getIp());
             }
             catch (IOException e){
-                System.out.println("Follower: connecting to leader failed");
+                System.out.println(this.ip + ": connecting to leader failed");
             }
 
-            Message message = new Message("MyClient", "MyServer", "payload " + 1, "Message");
+            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, "Message");
             while(true){
                 this.sendMessage(message);
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         else if (this.role == Role.LEADER){
             //if leader -> init and go in while true for read_message() and send_message()
-            try{
-                ServerSocket serverSocket = new ServerSocket(this.port);
-                System.out.println("leader accepting incoming messages from now on");
-                this.follower = serverSocket.accept();
+            try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+                NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                this.initializeStreams(newConnection);
+                this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
             }
             catch (IOException e){
-                System.out.println("leader: Opening as a leader failed");
+                System.out.println("Opening as a leader failed");
             }
-            System.out.println("Reading messages from now on");
-            this.readMessages(this.follower);
+            
+            while(true){
+                for (NodeSaver nodeSaver : this.connections) {
+                    this.readMessages(nodeSaver);
+                }
+                try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+                    NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                    this.initializeStreams(newConnection);
+                    this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
+                }
+                catch (IOException e){
+                    System.out.println("Opening as a leader failed");
+                }
+            }
         }
     }
 
@@ -73,25 +91,15 @@ public class Node extends Thread{
         try {
             this.leader.close();
         } catch (Exception e) { 
-            System.out.println("An error occured whilst closing the sockets.");
+            System.out.println("An error occurred whilst closing the sockets.");
         }
     }
 
-    public void readMessages(Socket connections){
-        try{
-            InputStream inputStream = connections.getInputStream();
-            dataInputStream = new DataInputStream(inputStream);
-            OutputStream outputStream = connections.getOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            ObjectMessageReader omr = new ObjectMessageReader();
-            omr.initInputStreams(connections);
-            
-            while (!connections.isClosed()){
-                Message message = omr.read(connections);
-                System.out.println("Incoming msg: " + message.getPayload());
-
-                dataOutputStream.writeUTF("200");
-            }
+    public void readMessages(NodeSaver nodeSaver){
+        try{            
+            Message message = nodeSaver.getOmr().read(nodeSaver.getSocket());
+            System.out.println("Incoming msg: " + message.getPayload());
+            nodeSaver.getDos().writeUTF("200");
         }
         catch (IOException e){
             System.out.println("Server read not working");
@@ -118,8 +126,26 @@ public class Node extends Thread{
                 return node;
             }
         }
-        System.out.println("Fehler hier, kein leader in sicht");
+        System.out.println("Follower Error, no leader found");
         return null;
+    }
+
+    private void initializeStreams(NodeSaver nodeSaver){
+        Socket socket = nodeSaver.getSocket();
+        try{
+            InputStream inputStream = socket.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
+            OutputStream outputStream = socket.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            ObjectMessageReader omr = new ObjectMessageReader();
+            omr.initInputStreams(socket);
+
+            nodeSaver.setDos(dataOutputStream);
+            nodeSaver.setOmr(omr);
+        }
+        catch(IOException e) {
+            System.out.println("Node read initialize failed");
+        }        
     }
 
     public LinkedList<Node> getListOfNodes(){return this.listOfNodes;}
