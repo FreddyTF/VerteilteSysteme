@@ -11,10 +11,10 @@ public class MainServer {
         listOfNodes.add(MasterNode);
 
         listOfNodes.add(new Node(Role.SLAVE, "127.0.0.2", master_port));
-        listOfNodes.add(new Node(Role.SLAVE, "127.0.0.3", master_port));
-        listOfNodes.add(new Node(Role.SLAVE, "127.0.0.4", master_port));
-        listOfNodes.add(new Node(Role.SLAVE, "127.0.0.5", master_port));
-        listOfNodes.add(new Node(Role.SLAVE, "127.0.0.6", master_port));
+        // listOfNodes.add(new Node(Role.SLAVE, "127.0.0.3", master_port));
+        // listOfNodes.add(new Node(Role.SLAVE, "127.0.0.4", master_port));
+        // listOfNodes.add(new Node(Role.SLAVE, "127.0.0.5", master_port));
+        // listOfNodes.add(new Node(Role.SLAVE, "127.0.0.6", master_port));
 
         for (Node node : listOfNodes) {
             node.setListOfNodes(listOfNodes);
@@ -23,7 +23,5 @@ public class MainServer {
         for (Node node : listOfNodes) {
             node.start();
         }       
-        
-        MasterNode.readMessage();
     }
 }

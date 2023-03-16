@@ -21,10 +21,9 @@ public class Node extends Thread{
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
 
-    public ServerSocket myServer;
     public Socket myMaster;
     public Socket myClient;
-    private DataOutputStream dataOutputStream;
+    private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
 
     public Node(Role role, String ip, int port){
@@ -34,13 +33,13 @@ public class Node extends Thread{
     }
 
     public void run(){
-        //TODO: implement connection between node and client
+        //if slave -> init an go in while true for sending() and reading()
         if(this.role == Role.SLAVE){
             try{
                 Node master = this.getMaster();
                 this.myMaster = new Socket(master.getIp(), master.getPort());
                 OutputStream outputStream = this.myMaster.getOutputStream();
-                this.dataOutputStream = new DataOutputStream(outputStream);
+                this.objectOutputStream = new ObjectOutputStream(outputStream);
                 InputStream inputStream = this.myMaster.getInputStream();
                 this.dataInputStream = new DataInputStream(inputStream);
                 System.out.println("Connected successfully to Master: " + master.getIp());
@@ -48,43 +47,70 @@ public class Node extends Thread{
             catch (IOException e){
                 System.out.println("Slave: connecting to Master failed");
             }
+
+            Message message = new Message("MyClient", "MyServer", "payload " + 1, "Message");
+            while(true){
+                this.sendMessage(message);
+            }
         }
         else if (this.role == Role.MASTER){
+            //if master -> init and go in while true for read_message() and send_message()
             try{
                 ServerSocket serverSocket = new ServerSocket(this.port);
-                myMaster = serverSocket.accept();
+                System.out.println("Master accepting incoming messages from now on");
+                this.myClient = serverSocket.accept();
             }
             catch (IOException e){
                 System.out.println("Master: Opening as a Master failed");
             }
+            System.out.println("Reading messages from now on");
+            this.readMessages(this.myClient);
         }
     }
 
     public void closeSockets(){
         try {
-            myServer.close();
+            this.myMaster.close();
         } catch (Exception e) { 
             System.out.println("An error occured whilst closing the sockets.");
         }
     }
 
-    public void readMessage(){
-        if(this.role == Role.MASTER){
-            try{
-                while (!myMaster.isClosed()){
-                    String msg = dataInputStream.readUTF();
-                    System.out.println("Incoming msg: " + msg);
+    public void readMessages(Socket myClient){
+        try{
+            InputStream inputStream = myClient.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
+            OutputStream outputStream = myClient.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            ObjectMessageReader omr = new ObjectMessageReader();
+            omr.initInputStreams(myClient);
+            
+            while (!myClient.isClosed()){
+                Message message = omr.read(myClient);
+                System.out.println("Incoming msg: " + message.getPayload());
 
-                    dataOutputStream.writeUTF("200");
-                }
-            }
-            catch (IOException e){
-                System.out.println("Server read not working");
+                dataOutputStream.writeUTF("200");
             }
         }
-        
+        catch (IOException e){
+            System.out.println("Server read not working");
+        }
     }
 
+    public void sendMessage(Message message){
+        try{
+            this.objectOutputStream.writeObject(message);
+            this.objectOutputStream.flush();
+
+            String resp = dataInputStream.readUTF();
+            System.out.println("Response: " + resp);
+
+        }
+        catch (IOException e){
+            System.out.println("Client send not working");
+        }
+    }   
+    
     private Node getMaster(){
         for(Node node : this.listOfNodes){
             if(node.getRole() == Role.MASTER){

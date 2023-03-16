@@ -36,7 +36,7 @@ public class Client{
             dataInputStream = new DataInputStream(inputStream);
         }
         catch (IOException e){
-            System.out.println("Client tut net");
+            System.out.println("Client can't establish data stream");
         }
     }
 
@@ -50,7 +50,7 @@ public class Client{
 
         }
         catch (IOException e){
-            System.out.println("Client send not working");
+            System.out.println("Client can't send message");
         }
     }   
 
