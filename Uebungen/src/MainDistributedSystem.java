@@ -10,7 +10,7 @@ public class MainDistributedSystem {
         listOfNodes.add(LeaderNode);
 
         listOfNodes.add(new Node(Role.FOLLOWER, "127.0.0.2", leader_port));
-        listOfNodes.add(new Node(Role.FOLLOWER, "127.0.0.3", leader_port));
+        // listOfNodes.add(new Node(Role.FOLLOWER, "127.0.0.3", leader_port));
         // listOfNodes.add(new Node(Role.FOLLOWER, "127.0.0.4", leader_port));
         // listOfNodes.add(new Node(Role.FOLLOWER, "127.0.0.5", leader_port));
         // listOfNodes.add(new Node(Role.FOLLOWER, "127.0.0.6", leader_port));
