@@ -61,32 +61,19 @@ public class Node extends Thread{
             }
         }
         else if (this.role == Role.LEADER){
-            //if leader -> init and go in while true for read_message() and send_message            
-            try (ServerSocket serverSocket = new ServerSocket(this.port)) {
-                NodeSaver newConnection = new NodeSaver(serverSocket.accept());
-                this.initializeStreams(newConnection);
-                this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
-                //new thread that is accepting new connections
-            }
-            catch (IOException e){
-                System.out.println("Opening as a leader failed");
-            }
+            //if leader -> init and go in while true for read_message() and send_message 
             while(true){
-                for (NodeSaver nodeSaver : this.connections) {
-                    this.readMessages(nodeSaver);
+                try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+                    NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                    this.initializeStreams(newConnection);
+                    this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
+                    ReadMessageObject rmo = new ReadMessageObject(newConnection);
+                    rmo.start();
+                }
+                catch (IOException e){
+                    System.out.println("Opening as a leader failed");
                 }
             }
-        }
-    }
-    
-    public void readMessages(NodeSaver nodeSaver){
-        try{            
-            Message message = nodeSaver.getOmr().read(nodeSaver.getSocket());
-            System.out.println("Incoming msg: " + message.getPayload());
-            nodeSaver.getDos().writeUTF("200");
-        }
-        catch (IOException e){
-            System.out.println("Server read not working");
         }
     }
 
