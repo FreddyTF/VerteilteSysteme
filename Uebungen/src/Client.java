@@ -50,7 +50,7 @@ public class Client{
     }
 
     public void sendMessage(String message_as_string){
-        Message message = new Message("Client", this.leaderIp, message_as_string, "Messsage");
+        Message message = new Message("Client", this.leaderIp, message_as_string, MesssageType.WRITE);
         try{
             this.objectOutputStream.writeObject(message);
             this.objectOutputStream.flush();
