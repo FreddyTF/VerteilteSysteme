@@ -6,10 +6,10 @@ public class Message implements Serializable {
     private String receiver;
     private Object payload;
     private Instant time = Instant.now();
-    private String type; // may be an enum too
+    private MesssageType type; // may be an enum too
     private int sequenceNo = -1;
     
-    public Message(String sender, String receiver, Object payload, String type)
+    public Message(String sender, String receiver, Object payload, MesssageType type)
     {
         this.sender = sender;
         this.receiver = receiver;

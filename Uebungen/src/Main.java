@@ -29,8 +29,7 @@ public class Main {
 
         Client client = new Client(leader_ip, leader_port);
         while(true){
-            client.sendMessage("client sends some shit");
+            client.sendMessage("WRITE: abc");
         }
-        
     }
 }
