@@ -51,7 +51,6 @@ public class Node extends Thread{
             }
 
             Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MesssageType.WRITE);
-            
             this.sendMessage(message);
         }
         else if (this.role == Role.LEADER){

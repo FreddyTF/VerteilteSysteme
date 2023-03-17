@@ -30,7 +30,7 @@ public class Main {
 
         Client client = new Client(leader_ip, leader_port);
         while(true){
-            client.sendMessage("WRITE: abc");
+            client.sendMessage("abc");
             TimeUnit.SECONDS.sleep(1);
         }
     }

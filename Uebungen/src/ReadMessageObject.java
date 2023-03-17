@@ -13,7 +13,7 @@ public class ReadMessageObject extends Thread{
         while(!this.nodeSaver.getSocket().isClosed()){
             try{            
                 Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
-                System.out.println("Incoming msg: " + message.getPayload());
+                System.out.println("Incoming msg: " + message.getPayload() + " Type: " + message.getType());
                 this.nodeSaver.getDos().writeUTF("200");
                 //write in singleton
             }
