@@ -62,17 +62,17 @@ public class Node extends Thread{
         }
         else if (this.role == Role.LEADER){
             //if leader -> init and go in while true for read_message() and send_message 
-            while(true){
-                try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+            try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+                while(true){
                     NodeSaver newConnection = new NodeSaver(serverSocket.accept());
                     this.initializeStreams(newConnection);
                     this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
                     ReadMessageObject rmo = new ReadMessageObject(newConnection);
                     rmo.start();
                 }
-                catch (IOException e){
-                    System.out.println("Opening as a leader failed");
-                }
+            }
+            catch (IOException e){
+                System.out.println("Opening as a leader failed");
             }
         }
     }
@@ -87,7 +87,7 @@ public class Node extends Thread{
 
         }
         catch (IOException e){
-            System.out.println("Client send not working");
+            System.out.println("Client send not working by " + this.ip);
         }
     }   
     
