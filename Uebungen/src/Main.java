@@ -1,7 +1,8 @@
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String leader_ip = "127.0.0.1";
         int leader_port = 200;
     
@@ -30,6 +31,7 @@ public class Main {
         Client client = new Client(leader_ip, leader_port);
         while(true){
             client.sendMessage("WRITE: abc");
+            TimeUnit.SECONDS.sleep(1);
         }
     }
 }
