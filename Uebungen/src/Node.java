@@ -1,6 +1,5 @@
 import java.net.*;
 import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
 import java.io.*;
 
 
@@ -60,7 +59,7 @@ public class Node extends Thread{
                     NodeSaver newConnection = new NodeSaver(serverSocket.accept());
                     this.initializeStreams(newConnection);
                     this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
-                    ReadMessageObject rmo = new ReadMessageObject(newConnection);
+                    ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
                     rmo.start();
                 }
             }

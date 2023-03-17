@@ -2,10 +2,12 @@ import java.io.IOException;
 
 public class ReadMessageObject extends Thread{
     NodeSaver nodeSaver;
+    Node parentNode;
     
-    public ReadMessageObject(NodeSaver nodeSaver)
+    public ReadMessageObject(NodeSaver nodeSaver, Node node)
     {
         this.nodeSaver = nodeSaver;
+        this.parentNode = node;
     }
     
     public void run()

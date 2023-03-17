@@ -28,7 +28,7 @@ public class Main {
             node.start();
         }       
 
-        Client client = new Client(leader_ip, leader_port);
+        Client client = new Client("127.0.0.6", leader_port);
         while(true){
             client.sendMessage("abc");
             TimeUnit.SECONDS.sleep(1);
