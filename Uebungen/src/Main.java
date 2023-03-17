@@ -26,5 +26,11 @@ public class Main {
         for (Node node : listOfNodes) {
             node.start();
         }       
+
+        Client client = new Client(leader_ip, leader_port);
+        while(true){
+            client.sendMessage("client sends some shit");
+        }
+        
     }
 }

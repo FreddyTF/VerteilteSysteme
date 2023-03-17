@@ -51,14 +51,8 @@ public class Node extends Thread{
             }
 
             Message message = new Message("MyClient", "MyServer", "payload " + this.ip, "Message");
-            while(true){
-                this.sendMessage(message);
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            
+            this.sendMessage(message);
         }
         else if (this.role == Role.LEADER){
             //if leader -> init and go in while true for read_message() and send_message 

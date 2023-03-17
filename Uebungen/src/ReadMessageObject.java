@@ -10,7 +10,7 @@ public class ReadMessageObject extends Thread{
     
     public void run()
     {
-        while(true){  //!this.nodeSaver.getSocket().isClosed()
+        while(!this.nodeSaver.getSocket().isClosed()){
             try{            
                 Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
                 System.out.println("Incoming msg: " + message.getPayload());
