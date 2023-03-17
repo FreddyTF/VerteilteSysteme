@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.time.Instant;
 
+
 public class Message implements Serializable {
     private String sender;
     private String receiver;
@@ -29,10 +30,10 @@ public class Message implements Serializable {
     public void setTime (Instant message) 
     {this.time = time;}
 
-    public String getType () 
+    public MesssageType getType () 
     {return this.type;}
 
-    public void setType (String type) 
+    public void setType (MesssageType type) 
     {this.type = type;}
 
     public String getSender() 

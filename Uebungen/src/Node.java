@@ -50,7 +50,7 @@ public class Node extends Thread{
                 System.out.println(this.ip + ": connecting to leader failed");
             }
 
-            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, "Message");
+            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MesssageType.WRITE);
             
             this.sendMessage(message);
         }
