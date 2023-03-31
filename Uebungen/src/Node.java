@@ -34,27 +34,40 @@ public class Node extends Thread{
     }
 
     public void run(){
-        //if follower -> init an go in while true for sending() and reading()
         if(this.role == Role.FOLLOWER){
-            try{
-                Node leader = this.getLeader();
-                this.leader = new Socket(leader.getIp(), leader.getPort());
-                OutputStream outputStream = this.leader.getOutputStream();
-                this.objectOutputStream = new ObjectOutputStream(outputStream);
-                InputStream inputStream = this.leader.getInputStream();
-                this.dataInputStream = new DataInputStream(inputStream);
-                System.out.println(this.ip + ": connected successfully to leader: " + leader.getIp());
-            }
-            catch (IOException e){
-                System.out.println(this.ip + ": connecting to leader failed");
-            }
-
-            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MesssageType.WRITE);
-            this.sendMessage(message);
+            this.run_follower();
         }
         else if (this.role == Role.LEADER){
-            //if leader -> init and go in while true for read_message() and send_message 
-            try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+            this.run_leader();
+        }
+    }
+
+    public void run_leader(){
+        //if leader -> init and go in while true for read_message() and send_message 
+        try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+            while(true){
+                NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                this.initializeStreams(newConnection);
+                this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
+                ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
+                rmo.start();
+            }
+        }
+        catch (IOException e){
+            System.out.println("Opening as a leader failed");
+        }
+    }
+
+    public void run_follower(){
+        //if follower -> init an go in while true for sending() and reading()
+        try{
+            FollowerToLeader ftl = new FollowerToLeader(this.getLeader(), this);
+            ftl.run();
+            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MesssageType.WRITE);
+            String response = ftl.sendMessage(message);
+
+            try (ServerSocket serverSocket = new ServerSocket(this.getLeader().getPort())) {
+                System.out.println("checkpoints real");
                 while(true){
                     NodeSaver newConnection = new NodeSaver(serverSocket.accept());
                     this.initializeStreams(newConnection);
@@ -63,23 +76,25 @@ public class Node extends Thread{
                     rmo.start();
                 }
             }
-            catch (IOException e){
-                System.out.println("Opening as a leader failed");
-            }
+        }
+        catch (IOException e){
+            System.out.println(e.toString());
+            System.out.println(this.ip + ": connecting to leader failed");
         }
     }
 
-    public void sendMessage(Message message){
+    public String sendMessage(Message message){
         try{
             this.objectOutputStream.writeObject(message);
             this.objectOutputStream.flush();
 
             String resp = dataInputStream.readUTF();
             System.out.println("Response: " + resp);
-
+            return resp;
         }
         catch (IOException e){
             System.out.println("Client send not working by " + this.ip);
+            return "failure";
         }
     }   
     

@@ -25,19 +25,19 @@ public class Client{
     public Socket myNode;
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
-    private String leaderIp;
-    private int leaderPort;
+    private String entryIp;
+    private int entryPort;
 
 
-    public Client(String leaderIp, int leaderPort){
-        this.leaderIp = leaderIp;
-        this.leaderPort = leaderPort;
+    public Client(String entryIp, int entryPort){
+        this.entryIp = entryIp;
+        this.entryPort = entryPort;
         this.initialize();
     }
 
     public void initialize(){
         try{
-            this.myNode = new Socket(this.leaderIp, this.leaderPort);
+            this.myNode = new Socket(this.entryIp, this.entryPort);
             OutputStream outputStream = this.myNode.getOutputStream();
             objectOutputStream = new ObjectOutputStream(outputStream);
             InputStream inputStream = this.myNode.getInputStream();
@@ -49,7 +49,7 @@ public class Client{
     }
 
     public void sendMessage(String message_as_string){
-        Message message = new Message("Client", this.leaderIp, message_as_string, MesssageType.WRITE);
+        Message message = new Message("Client", this.entryIp, message_as_string, MesssageType.WRITE);
         try{
             this.objectOutputStream.writeObject(message);
             this.objectOutputStream.flush();

@@ -1,28 +1,40 @@
 import java.io.IOException;
 
-public class ReadMessageObject extends Thread{
+public class ReadMessageObject extends Thread {
     NodeSaver nodeSaver;
     Node parentNode;
-    
-    public ReadMessageObject(NodeSaver nodeSaver, Node node)
-    {
+
+    public ReadMessageObject(NodeSaver nodeSaver, Node node) {
         this.nodeSaver = nodeSaver;
         this.parentNode = node;
     }
-    
-    public void run()
-    {
-        while(!this.nodeSaver.getSocket().isClosed()){
-            try{            
-                Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
-                System.out.println("Incoming msg: " + message.getPayload() + " Type: " + message.getType());
-                this.nodeSaver.getDos().writeUTF("200");
-                //write in singleton
+
+    public void run() {
+        if (this.parentNode.getRole() == Role.LEADER) {
+            while (!this.nodeSaver.getSocket().isClosed()) {
+                try {
+                    Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
+                    System.out.println("Incoming msg for " + this.parentNode.getIp() + ": " + message.getPayload() + " Type: " + message.getType());
+                    this.nodeSaver.getDos().writeUTF("200");
+                    // write in singleton
+                } catch (IOException e) {
+                    System.out.println("Server read not working");
+                }
             }
-            catch (IOException e){
-                System.out.println("Server read not working");
+        } else if (this.parentNode.getRole() == Role.FOLLOWER) {
+            while (!this.nodeSaver.getSocket().isClosed()) {
+                Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
+                try{
+                    if(!this.parentNode.leader.isClosed()){
+                        String response = this.parentNode.sendMessage(message);
+                        System.out.println("From follower: " + response.toString());
+                        this.nodeSaver.getDos().writeUTF("200");
+                    }
+                }
+                catch (IOException e){
+                    System.out.println("Problem with communicating between master and client");
+                }
             }
         }
-        
     }
 }
