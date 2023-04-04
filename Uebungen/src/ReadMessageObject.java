@@ -27,7 +27,6 @@ public class ReadMessageObject extends Thread {
                 try{
                     if(!this.parentNode.leader.isClosed()){
                         String response = this.parentNode.getFtl().sendMessage(message);
-                        System.out.println("From follower: " + response.toString());
                         this.nodeSaver.getDos().writeUTF("200");
                     }
                 }

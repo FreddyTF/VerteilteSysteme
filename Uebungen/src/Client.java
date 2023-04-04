@@ -40,12 +40,12 @@ public class Client{
     public void initialize(){
         this.ctep = new ClientToEntryPoint(this.entryPoint, this.ownIpAdress);
         this.ctep.run();
-        this.sendMessage(this.entryPoint.getIp());
     }
 
     public void sendMessage(String message_as_string){
         Message message = new Message("Client", this.entryPoint.getIp(), message_as_string, MessageType.WRITE);
         String response = this.ctep.sendMessage(message);
+        System.out.println("Client " + this.ownIpAdress + " received answer: " + response);
     }   
 
 }
