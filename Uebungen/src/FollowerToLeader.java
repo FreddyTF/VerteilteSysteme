@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class FollowerToLeader extends Thread{
@@ -37,9 +38,7 @@ public class FollowerToLeader extends Thread{
         try{
             this.objectOutputStream.writeObject(message);
             this.objectOutputStream.flush();
-
             String resp = dataInputStream.readUTF();
-            System.out.println("Response: " + resp);
             return resp;
         }
         catch (IOException e){

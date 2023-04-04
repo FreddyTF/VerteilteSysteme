@@ -27,7 +27,7 @@ public class Message implements Serializable {
     public Instant getTime () 
     {return this.time;}
 
-    public void setTime (Instant message) 
+    public void setTime (Instant time) 
     {this.time = time;}
 
     public MessageType getType () 

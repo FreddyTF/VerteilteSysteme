@@ -44,7 +44,10 @@ public class Node extends Thread{
 
     public void run_leader(){
         //if leader -> init and go in while true for read_message() and send_message 
-        try (ServerSocket serverSocket = new ServerSocket(this.port)) {
+        try{
+            ServerSocket serverSocket = new ServerSocket();
+            InetSocketAddress address = new InetSocketAddress(this.ip, this.port);
+            serverSocket.bind(address);
             while(true){
                 NodeSaver newConnection = new NodeSaver(serverSocket.accept());
                 this.initializeStreams(newConnection);
@@ -56,25 +59,29 @@ public class Node extends Thread{
         catch (IOException e){
             System.out.println("Opening as a leader failed");
         }
+        
     }
 
     public void run_follower(){
         //if follower -> init an go in while true for sending() and reading()
+        //Establish connection to leader as a follower
+        FollowerToLeader ftl = new FollowerToLeader(this.getLeader(), this);
+        ftl.run();
+        Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.WRITE);
+        String response = ftl.sendMessage(message);
+        System.out.println(this.ip + " received master response: " + response);
+        //Open for possible clients as a follower
         try{
-            FollowerToLeader ftl = new FollowerToLeader(this.getLeader(), this);
-            ftl.run();
-            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.WRITE);
-            String response = ftl.sendMessage(message);
+            ServerSocket serverSocket = new ServerSocket();
+            InetSocketAddress address = new InetSocketAddress(this.ip, this.port);
+            serverSocket.bind(address);
 
-            try (ServerSocket serverSocket = new ServerSocket(this.getLeader().getPort())) {
-                System.out.println("checkpoints real");
-                while(true){
-                    NodeSaver newConnection = new NodeSaver(serverSocket.accept());
-                    this.initializeStreams(newConnection);
-                    this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
-                    ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
-                    rmo.start();
-                }
+            while(true){
+                NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                this.initializeStreams(newConnection);
+                this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
+                ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
+                rmo.start();
             }
         }
         catch (IOException e){
