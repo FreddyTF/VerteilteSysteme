@@ -7,10 +7,10 @@ public class Message implements Serializable {
     private String receiver;
     private Object payload;
     private Instant time = Instant.now();
-    private MesssageType type; // may be an enum too
+    private MessageType type; // may be an enum too
     private int sequenceNo = -1;
     
-    public Message(String sender, String receiver, Object payload, MesssageType type)
+    public Message(String sender, String receiver, Object payload, MessageType type)
     {
         this.sender = sender;
         this.receiver = receiver;
@@ -30,10 +30,10 @@ public class Message implements Serializable {
     public void setTime (Instant message) 
     {this.time = time;}
 
-    public MesssageType getType () 
+    public MessageType getType () 
     {return this.type;}
 
-    public void setType (MesssageType type) 
+    public void setType (MessageType type) 
     {this.type = type;}
 
     public String getSender() 

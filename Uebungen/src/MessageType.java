@@ -1,3 +1,3 @@
-public enum MesssageType {
+public enum MessageType {
     UNKNOWN, WRITE, READ
 }

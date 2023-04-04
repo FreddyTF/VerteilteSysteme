@@ -63,7 +63,7 @@ public class Node extends Thread{
         try{
             FollowerToLeader ftl = new FollowerToLeader(this.getLeader(), this);
             ftl.run();
-            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MesssageType.WRITE);
+            Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.WRITE);
             String response = ftl.sendMessage(message);
 
             try (ServerSocket serverSocket = new ServerSocket(this.getLeader().getPort())) {

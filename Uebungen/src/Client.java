@@ -49,7 +49,7 @@ public class Client{
     }
 
     public void sendMessage(String message_as_string){
-        Message message = new Message("Client", this.entryIp, message_as_string, MesssageType.WRITE);
+        Message message = new Message("Client", this.entryIp, message_as_string, MessageType.WRITE);
         try{
             this.objectOutputStream.writeObject(message);
             this.objectOutputStream.flush();
