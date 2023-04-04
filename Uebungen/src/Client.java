@@ -19,48 +19,33 @@ public class Client{
     * @return the created socket after connection is
     established
      * @throws IOException
-     * @throws UnknownHostException
     */
 
     public Socket myNode;
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
-    private String entryIp;
-    private int entryPort;
+    private Node entryPoint;
+    private String ownIpAdress;
+    private ClientToEntryPoint ctep;
 
-
-    public Client(String entryIp, int entryPort){
-        this.entryIp = entryIp;
-        this.entryPort = entryPort;
+    /*
+    * Starts initializing itself right away, contacts its entrypoint for this.
+    */
+    public Client(Node entryPoint, String ownIpAdress){
+        this.entryPoint = entryPoint;
+        this.ownIpAdress = ownIpAdress;
         this.initialize();
     }
 
     public void initialize(){
-        try{
-            this.myNode = new Socket(this.entryIp, this.entryPort);
-            OutputStream outputStream = this.myNode.getOutputStream();
-            objectOutputStream = new ObjectOutputStream(outputStream);
-            InputStream inputStream = this.myNode.getInputStream();
-            dataInputStream = new DataInputStream(inputStream);
-        }
-        catch (IOException e){
-            System.out.println("Client can't establish data stream");
-        }
+        this.ctep = new ClientToEntryPoint(this.entryPoint, this.ownIpAdress);
+        this.ctep.run();
+        this.sendMessage(this.entryPoint.getIp());
     }
 
     public void sendMessage(String message_as_string){
-        Message message = new Message("Client", this.entryIp, message_as_string, MessageType.WRITE);
-        try{
-            this.objectOutputStream.writeObject(message);
-            this.objectOutputStream.flush();
-
-            String resp = dataInputStream.readUTF();
-            System.out.println("Response: " + resp);
-
-        }
-        catch (IOException e){
-            System.out.println("Client can't send message");
-        }
+        Message message = new Message("Client", this.entryPoint.getIp(), message_as_string, MessageType.WRITE);
+        String response = this.ctep.sendMessage(message);
     }   
 
 }

@@ -28,10 +28,13 @@ public class Main {
             node.start();
         }       
 
-        Client client = new Client("127.0.0.6", port);
+        TimeUnit.SECONDS.sleep(1);
+
+        Client client1 = new Client(listOfNodes.get(1), "127.0.1.1");
+        // Client client2 = new Client(listOfNodes.get(0), "127.0.1.2");
         while(true){
-            client.sendMessage("abc");
             TimeUnit.SECONDS.sleep(1);
+            client1.sendMessage("abc");
         }
     }
 }

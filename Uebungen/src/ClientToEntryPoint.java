@@ -6,31 +6,31 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class FollowerToLeader extends Thread{
+public class ClientToEntryPoint extends Thread{
 
-    private Node leader;
-    private Node parentNode;
+    private Node entryPoint;
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
+    private String ownIpAdress;
 
-    public FollowerToLeader(Node leader, Node parentNode){
-        this.leader = leader;
-        this.parentNode = parentNode;
+    public ClientToEntryPoint(Node entryPoint, String ownIpAdress){
+        this.entryPoint = entryPoint;
+        this.ownIpAdress = ownIpAdress;
     }
 
     public void run(){
-        Socket leaderSocket;
+        Socket entryPointSocket;
         try {
-            leaderSocket = new Socket(leader.getIp(), leader.getPort());
-            this.parentNode.leader = leaderSocket;
-            OutputStream outputStream = leaderSocket.getOutputStream();
+            entryPointSocket = new Socket(entryPoint.getIp(), entryPoint.getPort());
+            OutputStream outputStream = entryPointSocket.getOutputStream();
             this.objectOutputStream = new ObjectOutputStream(outputStream);
-            InputStream inputStream = leaderSocket.getInputStream();
+            InputStream inputStream = entryPointSocket.getInputStream();
             this.dataInputStream = new DataInputStream(inputStream);
-            System.out.println(this.parentNode.getIp() + ": connected successfully to leader: " + leader.getIp());
+
+            System.out.println("Client " + this.ownIpAdress +" connected successfully to entryPoint: " + entryPoint.getIp());
         } catch (IOException e) {
              System.out.println(e.toString());
-            System.out.println(this.parentNode.getIp() + ": connecting to leader failed");
+            System.out.println("Client connecting to entryPoint failed");
         }
        
     }
@@ -43,7 +43,7 @@ public class FollowerToLeader extends Thread{
             return resp;
         }
         catch (IOException e){
-            System.out.println("Client send not working by " + this.parentNode.getIp());
+            System.out.println("Client send not working by" + this.ownIpAdress);
             return "failure";
         }
     }   

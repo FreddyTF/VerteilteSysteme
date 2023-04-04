@@ -26,6 +26,7 @@ public class Node extends Thread{
     public LinkedList<NodeSaver> allNodes = new LinkedList<NodeSaver>(); //all nodes, incl. own -> same list for every node
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
+    private FollowerToLeader ftl;
 
     public Node(Role role, String ip, int port){
         this.role = role;
@@ -65,11 +66,12 @@ public class Node extends Thread{
     public void run_follower(){
         //if follower -> init an go in while true for sending() and reading()
         //Establish connection to leader as a follower
-        FollowerToLeader ftl = new FollowerToLeader(this.getLeader(), this);
-        ftl.run();
+        this.ftl = new FollowerToLeader(this.getLeader(), this);
+        this.ftl.run();
         Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.WRITE);
-        String response = ftl.sendMessage(message);
+        String response = this.ftl.sendMessage(message);
         System.out.println(this.ip + " received master response: " + response);
+
         //Open for possible clients as a follower
         try{
             ServerSocket serverSocket = new ServerSocket();
@@ -143,4 +145,5 @@ public class Node extends Thread{
     public void setNodeId(int id ){this.nodeId=id;}
     public Role getRole(){return this.role;}
     public void setRole(Role role){this.role = role;}
+    public FollowerToLeader getFtl(){return this.ftl;}
 }
