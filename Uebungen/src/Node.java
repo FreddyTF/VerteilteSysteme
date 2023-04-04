@@ -21,12 +21,12 @@ public class Node extends Thread{
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
 
-    public Socket leader;   //the one leader, if self is a leader -> empty
+    public Socket leaderSocket;   //the one leader, if self is a leader -> empty
     public LinkedList<NodeSaver> connections = new LinkedList<NodeSaver>(); //all connected nodes
     public LinkedList<NodeSaver> allNodes = new LinkedList<NodeSaver>(); //all nodes, incl. own -> same list for every node
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
-    private FollowerToLeader ftl;
+    private ConnectToServerSocket ctss;
 
     public Node(Role role, String ip, int port){
         this.role = role;
@@ -66,10 +66,10 @@ public class Node extends Thread{
     public void run_follower(){
         //if follower -> init an go in while true for sending() and reading()
         //Establish connection to leader as a follower
-        this.ftl = new FollowerToLeader(this.getLeader(), this);
-        this.ftl.run();
+        this.ctss = new ConnectToServerSocket(this.getLeaderSocket(), this.ip, this);
+        this.ctss.run();
         Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.WRITE);
-        String response = this.ftl.sendMessage(message);
+        String response = this.ctss.sendMessage(message);
         System.out.println(this.ip + " received master response: " + response);
 
         //Open for possible clients as a follower
@@ -90,24 +90,9 @@ public class Node extends Thread{
             System.out.println(e.toString());
             System.out.println(this.ip + ": connecting to leader failed");
         }
-    }
-
-    public String sendMessage(Message message){
-        try{
-            this.objectOutputStream.writeObject(message);
-            this.objectOutputStream.flush();
-
-            String resp = dataInputStream.readUTF();
-            System.out.println("Response: " + resp);
-            return resp;
-        }
-        catch (IOException e){
-            System.out.println("Client send not working by " + this.ip);
-            return "failure";
-        }
     }   
     
-    private Node getLeader(){
+    private Node getLeaderSocket(){
         for(Node node : this.listOfNodes){
             if(node.getRole() == Role.LEADER){
                 return node;
@@ -145,5 +130,5 @@ public class Node extends Thread{
     public void setNodeId(int id ){this.nodeId=id;}
     public Role getRole(){return this.role;}
     public void setRole(Role role){this.role = role;}
-    public FollowerToLeader getFtl(){return this.ftl;}
+    public ConnectToServerSocket getCtss(){return this.ctss;}
 }

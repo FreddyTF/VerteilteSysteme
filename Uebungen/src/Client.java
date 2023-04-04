@@ -3,11 +3,6 @@
      * this could be a own thread
      */
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 
 public class Client{
@@ -22,11 +17,9 @@ public class Client{
     */
 
     public Socket myNode;
-    private ObjectOutputStream objectOutputStream;
-    private DataInputStream dataInputStream;
     private Node entryPoint;
     private String ownIpAdress;
-    private ClientToEntryPoint ctep;
+    private ConnectToServerSocket ctep;
 
     /*
     * Starts initializing itself right away, contacts its entrypoint for this.
@@ -38,7 +31,7 @@ public class Client{
     }
 
     public void initialize(){
-        this.ctep = new ClientToEntryPoint(this.entryPoint, this.ownIpAdress);
+        this.ctep = new ConnectToServerSocket(this.entryPoint, this.ownIpAdress, null);
         this.ctep.run();
     }
 
