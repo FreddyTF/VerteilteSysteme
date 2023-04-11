@@ -1,6 +1,8 @@
 import java.net.*;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.io.*;
+
 
 
 public class Node extends Thread{
@@ -20,7 +22,7 @@ public class Node extends Thread{
     private int nodeId = -1;
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
-    private LinkedList<Message> messageStorage = new LinkedList<>();
+    private LinkedList<MessageSaver> messageSaverStorage = new LinkedList<>();
 
     public Socket leaderSocket;   //the one leader, if self is a leader -> empty
     public LinkedList<NodeSaver> connections = new LinkedList<NodeSaver>(); //all connected nodes
@@ -121,20 +123,26 @@ public class Node extends Thread{
         }        
     }
 
-    public void saveMessage(Message message){
-        if(this.messageStorage.size() > 9){
-            this.messageStorage.removeFirst();            
+    public LocalDateTime saveMessage(Message message){
+        try {
+            if(this.messageSaverStorage.size() > 9){
+                this.messageSaverStorage.removeFirst();            
+            }
+            LocalDateTime savingTime = LocalDateTime.now();
+            this.messageSaverStorage.add(new MessageSaver(message, savingTime));
+            return savingTime;
+        } catch (Exception e) {
+            System.out.println("Saving message was not possible!");
+            return null;
         }
-        this.messageStorage.add(message);
-        // System.out.println("Saved Message from " + message.getSender() + ", total length now: " + this.messageStorage.size());
     }
 
     public String getSavedMessages(int count){
-        if(count > this.messageStorage.size()){
+        if(count > this.messageSaverStorage.size()){
             String toReturn = "";
-            for (Message message : this.messageStorage) {
-                toReturn += message.getPayload();
-                if(message != this.messageStorage.getLast()){
+            for (MessageSaver messageSaver : this.messageSaverStorage) {
+                toReturn += messageSaver.getMessage().getPayload();
+                if(messageSaver != this.messageSaverStorage.getLast()){
                     toReturn += ", ";
                 }
             }
@@ -142,10 +150,10 @@ public class Node extends Thread{
         }
         else {
             String toReturn = "";
-            for (int i = this.messageStorage.size() - count; i < this.messageStorage.size(); i++) { 
-                Message message = this.messageStorage.get(i);
-                toReturn += message.getPayload();
-                if(message != this.messageStorage.getLast()){
+            for (int i = this.messageSaverStorage.size() - count; i < this.messageSaverStorage.size(); i++) { 
+                MessageSaver messageSaver = this.messageSaverStorage.get(i);
+                toReturn += messageSaver.getMessage().getPayload();
+                if(messageSaver != this.messageSaverStorage.getLast()){
                     toReturn += ", ";
                 }
             }

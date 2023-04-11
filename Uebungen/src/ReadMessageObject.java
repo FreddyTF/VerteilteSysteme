@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 public class ReadMessageObject extends Thread {
     NodeSaver nodeSaver;
@@ -16,14 +17,18 @@ public class ReadMessageObject extends Thread {
                     Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
                     System.out.println("Incoming msg for " + this.parentNode.getIp() + ": " + message.getPayload() + " Type: " + message.getType());
                     if(message.getType() == MessageType.WRITE){
-                        this.parentNode.saveMessage(message);
-                        this.nodeSaver.getDos().writeUTF("200");
+                        LocalDateTime answer = this.parentNode.saveMessage(message);
+                        if(answer != null){
+                            this.nodeSaver.getDos().writeUTF("200: " + answer.toString());
+                        }
+                        else{
+                            this.nodeSaver.getDos().writeUTF("400: failed to save");
+                        }
                     }
                     else if(message.getType() == MessageType.READ){
                         try {
                             int number = Integer.parseInt(message.getPayload().toString());
                             String answer = this.parentNode.getSavedMessages(number);
-                            System.out.println(answer);
                             this.nodeSaver.getDos().writeUTF(answer);
                         } catch (Exception e) {
                             this.nodeSaver.getDos().writeUTF("Please provide a valid request: can't parse number of messages. Set payload to number only.");
