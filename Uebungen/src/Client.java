@@ -19,7 +19,7 @@ public class Client{
     public Socket myNode;
     private Node entryPoint;
     private String ownIpAdress;
-    private ConnectToServerSocket ctep;
+    private ConnectToServerSocket ctss;
 
     /*
     * Starts initializing itself right away, contacts its entrypoint for this.
@@ -31,13 +31,13 @@ public class Client{
     }
 
     public void initialize(){
-        this.ctep = new ConnectToServerSocket(this.entryPoint, this.ownIpAdress, null);
-        this.ctep.run();
+        this.ctss = new ConnectToServerSocket(this.entryPoint, this.ownIpAdress, null);
+        this.ctss.run();
     }
 
-    public void sendMessage(String message_as_string){
-        Message message = new Message("Client", this.entryPoint.getIp(), message_as_string, MessageType.WRITE);
-        String response = this.ctep.sendMessage(message);
+    public void sendMessage(String message_as_string, MessageType type){
+        Message message = new Message("Client", this.entryPoint.getIp(), message_as_string, type);
+        String response = this.ctss.sendMessage(message);
         System.out.println("Client " + this.ownIpAdress + " received answer: " + response);
     }   
 

@@ -31,20 +31,21 @@ public class Main {
         TimeUnit.SECONDS.sleep(1);
 
         Client client1 = new Client(listOfNodes.get(1), "127.0.1.1");
-        Client client2 = new Client(listOfNodes.get(0), "127.0.1.2");
-        Client client3 = new Client(listOfNodes.get(0), "127.0.1.3");
-        Client client4 = new Client(listOfNodes.get(0), "127.0.1.4");
-        Client client5 = new Client(listOfNodes.get(0), "127.0.1.5");
-        Client client6 = new Client(listOfNodes.get(0), "127.0.1.6");
+        // Client client2 = new Client(listOfNodes.get(0), "127.0.1.2");
+        // Client client3 = new Client(listOfNodes.get(0), "127.0.1.3");
+        // Client client4 = new Client(listOfNodes.get(0), "127.0.1.4");
+        // Client client5 = new Client(listOfNodes.get(0), "127.0.1.5");
+        // Client client6 = new Client(listOfNodes.get(0), "127.0.1.6");
         
-        while(true){
-            TimeUnit.SECONDS.sleep(1);
-            client1.sendMessage("abc");
-            client2.sendMessage("def");
-            client3.sendMessage("hij");
-            client4.sendMessage("klm");
-            client5.sendMessage("nop");
-            client6.sendMessage("qrs");
-        }
+        //while(true){
+        //    TimeUnit.SECONDS.sleep(1);
+        client1.sendMessage("abc", MessageType.WRITE);
+        client1.sendMessage("def", MessageType.WRITE);
+        client1.sendMessage("hij", MessageType.WRITE);
+        client1.sendMessage("klm", MessageType.WRITE);
+        client1.sendMessage("nop", MessageType.WRITE);
+        client1.sendMessage("5", MessageType.READ);
+        client1.sendMessage("ad", MessageType.READ);
+        //}
     }
 }
