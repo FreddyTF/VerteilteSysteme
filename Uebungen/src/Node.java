@@ -21,20 +21,25 @@ public class Node extends Thread{
     private int port = -1;
     private int nodeId = -1;
     private Role role = Role.UNKNOWN;
-    private LinkedList<Node> listOfNodes = new LinkedList<>();
     private LinkedList<MessageSaver> messageSaverStorage = new LinkedList<>();
 
     public Socket leaderSocket;   //the one leader, if self is a leader -> empty
-    public LinkedList<NodeSaver> connections = new LinkedList<NodeSaver>(); //all connected nodes
+    public LinkedList<ConnectionSaver> connections = new LinkedList<ConnectionSaver>(); //all connected nodes
     public LinkedList<NodeSaver> allNodes = new LinkedList<NodeSaver>(); //all nodes, incl. own -> same list for every node
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
     private ConnectToServerSocket ctss;
 
-    public Node(Role role, String ip, int port){
+    public Node(Role role, String ip, int port, Node leader){
         this.role = role;
         this.ip = ip;
         this.port = port;
+        if(leader == null){
+            this.allNodes.add(new NodeSaver(ip, port, role));
+        }
+        else{
+            this.allNodes.add(new NodeSaver(leader.getIp(), leader.getPort(), leader.getRole()));
+        }
     }
 
     public void run(){
@@ -53,7 +58,7 @@ public class Node extends Thread{
             InetSocketAddress address = new InetSocketAddress(this.ip, this.port);
             serverSocket.bind(address);
             while(true){
-                NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                ConnectionSaver newConnection = new ConnectionSaver(serverSocket.accept());
                 this.initializeStreams(newConnection);
                 this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
                 ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
@@ -69,9 +74,10 @@ public class Node extends Thread{
     public void run_follower(){
         //if follower -> init an go in while true for sending() and reading()
         //Establish connection to leader as a follower
-        this.ctss = new ConnectToServerSocket(this.getLeaderSocket(), this.ip, this);
+        this.ctss = new ConnectToServerSocket(this.getLeaderNode(), this.ip, this);
         this.ctss.run();
-        Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.UNKNOWN);
+        NodeSaver thisAsNodeSaver = new NodeSaver(this.ip, this.port, this.role);
+        Message message = new Message(this.ip, this.getLeaderNode().getIp(), this.ip, MessageType.INITIALIZE, thisAsNodeSaver);
         String response = this.ctss.sendMessage(message);
         System.out.println(this.ip + " received master response: " + response);
 
@@ -82,7 +88,7 @@ public class Node extends Thread{
             serverSocket.bind(address);
 
             while(true){
-                NodeSaver newConnection = new NodeSaver(serverSocket.accept());
+                ConnectionSaver newConnection = new ConnectionSaver(serverSocket.accept());
                 this.initializeStreams(newConnection);
                 this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
                 ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
@@ -95,17 +101,17 @@ public class Node extends Thread{
         }
     }   
     
-    private Node getLeaderSocket(){
-        for(Node node : this.listOfNodes){
-            if(node.getRole() == Role.LEADER){
-                return node;
+    private NodeSaver getLeaderNode(){
+        for(NodeSaver nodeSaver: this.allNodes){
+            if(nodeSaver.getRole() == Role.LEADER){
+                return nodeSaver;
             }
         }
         System.out.println("Follower Error, no leader found");
         return null;
     }
 
-    private void initializeStreams(NodeSaver nodeSaver){
+    private void initializeStreams(ConnectionSaver nodeSaver){
         Socket socket = nodeSaver.getSocket();
         try{
             InputStream inputStream = socket.getInputStream();
@@ -161,8 +167,6 @@ public class Node extends Thread{
         }
     }
 
-    public LinkedList<Node> getListOfNodes(){return this.listOfNodes;}
-    public void setListOfNodes(LinkedList<Node> list){this.listOfNodes = list;}
     public String getIp(){return this.ip;}
     public void setIp(String ip) {this.ip=ip;}
     public int getPort(){return this.port;}

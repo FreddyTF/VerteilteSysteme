@@ -31,7 +31,8 @@ public class Client{
     }
 
     public void initialize(){
-        this.ctss = new ConnectToServerSocket(this.entryPoint, this.ownIpAdress, null);
+        NodeSaver nodeSaver = new NodeSaver(this.entryPoint.getIp(), this.entryPoint.getPort(), this.entryPoint.getRole());
+        this.ctss = new ConnectToServerSocket(nodeSaver, this.ownIpAdress, null);
         this.ctss.run();
     }
 

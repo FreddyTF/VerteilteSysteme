@@ -7,13 +7,13 @@ import java.net.Socket;
 
 public class ConnectToServerSocket extends Thread{
 
-    private Node destinationNode;
+    private NodeSaver destinationNode;
     private Node parentNode;
     private ObjectOutputStream objectOutputStream;
     private DataInputStream dataInputStream;
     private String ownIpAddress;
 
-    public ConnectToServerSocket(Node destinationNode, String ownIpAdress, Node parentNode){
+    public ConnectToServerSocket(NodeSaver destinationNode, String ownIpAdress, Node parentNode){
         this.destinationNode = destinationNode;
         this.ownIpAddress = ownIpAdress;
         this.parentNode = parentNode;
@@ -22,7 +22,7 @@ public class ConnectToServerSocket extends Thread{
     public void run(){
         Socket destinationSocket;
         try {
-            destinationSocket = new Socket(destinationNode.getIp(), destinationNode.getPort());
+            destinationSocket = new Socket(this.destinationNode.getIp(), this.destinationNode.getPort());
             if(this.parentNode != null){
                 this.parentNode.leaderSocket = destinationSocket;
             }

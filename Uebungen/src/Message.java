@@ -8,8 +8,18 @@ public class Message implements Serializable {
     private Object payload;
     private Instant time = Instant.now();
     private MessageType type; // may be an enum too
+    private NodeSaver nodeSaver;
     private int sequenceNo = -1;
     
+    public Message(String sender, String receiver, Object payload, MessageType type, NodeSaver nodeSaver)
+    {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.payload = payload;
+        this.type = type;
+        this.nodeSaver = nodeSaver;
+    }
+
     public Message(String sender, String receiver, Object payload, MessageType type)
     {
         this.sender = sender;
@@ -17,6 +27,12 @@ public class Message implements Serializable {
         this.payload = payload;
         this.type = type;
     }
+
+    public NodeSaver getNodeSaver() 
+    {return this.nodeSaver;}
+
+    public void setNodeSaver(NodeSaver nodeSaver) 
+    {this.nodeSaver = nodeSaver;}
     
     public Object getPayload () 
     {return this.payload;}

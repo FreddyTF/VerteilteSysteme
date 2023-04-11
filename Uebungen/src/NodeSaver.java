@@ -1,28 +1,20 @@
-import java.io.DataOutputStream;
-import java.net.Socket;
+import java.io.Serializable;
 
-public class NodeSaver {
+public class NodeSaver implements Serializable {
+    private String ip;
+    private int port;
+    private Role role;
 
-    private Socket socket;
-    private ObjectMessageReader omr;
-    private DataOutputStream dos;
-    private Node node;
-
-    public Socket getSocket() {return this.socket;}
-    public void setSocket(Socket socket) {this.socket = socket;}
-
-    public ObjectMessageReader getOmr() {return this.omr;}
-    public void setOmr(ObjectMessageReader omr) {this.omr = omr;}
-
-    public DataOutputStream getDos() {return this.dos;}
-    public void setDos(DataOutputStream dos) {this.dos = dos;}
-
-    public Node getNode() {return this.node;}
-    public void setNode(Node node) {this.node = node;}
-
-    public NodeSaver(Socket socket){
-        this.socket = socket;
+    public NodeSaver(String ip, int port, Role role){
+        this.ip = ip;
+        this.port = port;
+        this.role = role;
     }
 
-
+    public String getIp() {return this.ip;}
+    public void setIp(String ip) {this.ip = ip;}
+    public int getPort() {return this.port;}
+    public void setPort(int port) {this.port = port;}
+    public Role getRole() {return this.role;}
+    public void setRole(Role role) {this.role = role;}
 }
