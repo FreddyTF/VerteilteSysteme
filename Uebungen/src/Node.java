@@ -20,6 +20,7 @@ public class Node extends Thread{
     private int nodeId = -1;
     private Role role = Role.UNKNOWN;
     private LinkedList<Node> listOfNodes = new LinkedList<>();
+    private LinkedList<Message> messageStorage = new LinkedList<>();
 
     public Socket leaderSocket;   //the one leader, if self is a leader -> empty
     public LinkedList<NodeSaver> connections = new LinkedList<NodeSaver>(); //all connected nodes
@@ -68,7 +69,7 @@ public class Node extends Thread{
         //Establish connection to leader as a follower
         this.ctss = new ConnectToServerSocket(this.getLeaderSocket(), this.ip, this);
         this.ctss.run();
-        Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.WRITE);
+        Message message = new Message("MyClient", "MyServer", "payload " + this.ip, MessageType.UNKNOWN);
         String response = this.ctss.sendMessage(message);
         System.out.println(this.ip + " received master response: " + response);
 
@@ -118,6 +119,38 @@ public class Node extends Thread{
         catch(IOException e) {
             System.out.println("Node read initialize failed");
         }        
+    }
+
+    public void saveMessage(Message message){
+        if(this.messageStorage.size() > 9){
+            this.messageStorage.removeFirst();            
+        }
+        this.messageStorage.add(message);
+        // System.out.println("Saved Message from " + message.getSender() + ", total length now: " + this.messageStorage.size());
+    }
+
+    public String getSavedMessages(int count){
+        if(count > this.messageStorage.size()){
+            String toReturn = "";
+            for (Message message : this.messageStorage) {
+                toReturn += message.getPayload();
+                if(message != this.messageStorage.getLast()){
+                    toReturn += ", ";
+                }
+            }
+            return toReturn;
+        }
+        else {
+            String toReturn = "";
+            for (int i = this.messageStorage.size() - count; i < this.messageStorage.size(); i++) { 
+                Message message = this.messageStorage.get(i);
+                toReturn += message.getPayload();
+                if(message != this.messageStorage.getLast()){
+                    toReturn += ", ";
+                }
+            }
+            return toReturn;
+        }
     }
 
     public LinkedList<Node> getListOfNodes(){return this.listOfNodes;}
