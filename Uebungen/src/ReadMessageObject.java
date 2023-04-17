@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 
 public class ReadMessageObject extends Thread {
     ConnectionSaver nodeSaver;
@@ -56,17 +57,30 @@ public class ReadMessageObject extends Thread {
 
     private void run_follower(){
         while (!this.nodeSaver.getSocket().isClosed()) {
-            Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
             try{
-                if(!this.parentNode.leaderSocket.isClosed()){
-                    //TODO: error handling
-                    String response = this.parentNode.getCtss().sendMessage(message);
-                    this.nodeSaver.getDos().writeUTF(response);
+                Message message = this.nodeSaver.getOmr().read(this.nodeSaver.getSocket());
+                if (message.getType() == MessageType.READ || message.getType() == MessageType.WRITE){
+                    if(!this.parentNode.leaderSocket.isClosed()){
+                        //TODO: error handling
+                        String response = this.parentNode.getCtss().sendMessage(message);
+                        this.nodeSaver.getDos().writeUTF(response);
+                    }
                 }
+                else if(message.getType() == MessageType.UPDATE_NODE_LIST){
+                    System.out.println("received upddated node list");
+                    LinkedList<NodeSaver> test = ((LinkedList<NodeSaver>)message.getPayload());
+                    this.parentNode.setNodeList(test);    
+                    this.nodeSaver.getDos().writeUTF("Piss dich");
+                }
+                else{
+                    System.out.println("Fuck You");
+                }
+            
             }
             catch (IOException e){
                 System.out.println("Problem with communicating between master and client");
-            }
+            }            
         }
     }
+    
 }

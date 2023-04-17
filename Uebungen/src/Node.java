@@ -10,7 +10,7 @@ public class Node extends Thread{
     // this max client definition is not available in "old "
     // implementations
     /**
-    * this method initialises the server
+    * this method initializes the server
     * @param dns name like " localhost "
     * @param port port to use
     * @return the created socket after client connected
@@ -59,6 +59,7 @@ public class Node extends Thread{
             serverSocket.bind(address);
             while(true){
                 ConnectionSaver newConnection = new ConnectionSaver(serverSocket.accept());
+                this.sendUpdatedNodeList();
                 this.initializeStreams(newConnection);
                 this.connections.add(newConnection); // -> waiting for first follower to connect before continuing
                 ReadMessageObject rmo = new ReadMessageObject(newConnection, this);
@@ -100,6 +101,11 @@ public class Node extends Thread{
             System.out.println(this.ip + ": connecting to leader failed");
         }
     }   
+
+    private void sendUpdatedNodeList(){
+        Message message = new Message("Client", "receiver", this.allNodes, MessageType.UPDATE_NODE_LIST);
+        
+    }
     
     private NodeSaver getLeaderNode(){
         for(NodeSaver nodeSaver: this.allNodes){
@@ -176,4 +182,8 @@ public class Node extends Thread{
     public Role getRole(){return this.role;}
     public void setRole(Role role){this.role = role;}
     public ConnectToServerSocket getCtss(){return this.ctss;}
+    public LinkedList<NodeSaver> getAllNodes(){return this.allNodes;}
+    public void setNodeList(LinkedList<NodeSaver> newList){this.allNodes = newList;}
+
+
 }
